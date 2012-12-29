@@ -28,29 +28,29 @@ private:
   std::wstring m_subnet_mask;
 };
 
-// target_network_adaptor�Ŏw�肵�Ă����A�_�v�^�[����network_address���ǉ������B
+// target_network_adaptorで指定しているアダプター名にnetwork_addressを追加する。
 long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adaptor, const std::vector<NetworkAddress> &network_address);
 
 // application entry point.
 int main()
 {
-  // WMI��COM�N���C�A���g��MTA�łȂ����΂Ȃ��Ȃ��B
+  // WMIのCOMクライアントはMTAでなければならない。
   HRESULT hr = ::CoInitializeEx(nullptr, COINIT_MULTITHREADED);
   if(SUCCEEDED(hr))
   {
-    // ���蓖�Ă�IP�̐ݒ�
+    // 割り当てるIPの設定
     std::vector<NetworkAddress> network_addres;
     {
       NetworkAddress  address1;
-      address1.SetAddress(L"192.168.0.100", L"255.255.0.0");
+      address1.SetAddress(L"172.30.1.100", L"255.255.0.0");
       network_addres.push_back(address1);
     }
     {
       NetworkAddress  address2;
-      address2.SetAddress(L"192.168.0.101", L"255.255.0.0");
+      address2.SetAddress(L"172.40.1.100", L"255.255.0.0");
       network_addres.push_back(address2);
     }
-    const std::wstring &target_adaptor = L"PCI";  // �l�b�g���[�N�A�_�v�^�[����PCI�����A�_�v�^�[���Ώہi�ŏ��Ɍ�����������)
+    const std::wstring &target_adaptor = L"PCI";  // ネットワークアダプター名にPCIがつくアダプターを対象（最初に見つかったもの)
     const int result = FirstFindAdaptorAddStaticIPAddress(target_adaptor, network_addres);
     ::CoUninitialize();
     return result;
@@ -60,13 +60,13 @@ int main()
     return 1;
   }
 }
-// target_network_adaptor�Ŏw�肵�Ă����A�_�v�^�[����network_address���ǉ������B
+// target_network_adaptorで指定しているアダプター名にnetwork_addressを追加する。
 long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adaptor, const std::vector<NetworkAddress> &network_addres)
 {
   IWbemLocator *locator = nullptr;
   HRESULT hr = ::CoCreateInstance(CLSID_WbemLocator, nullptr, CLSCTX_INPROC_SERVER,
                                   IID_PPV_ARGS(&locator));
-  /* CIMV2���O���� */
+  /* CIMV2名前空間 */
   IWbemServices *targetNamespace = nullptr;
   if(SUCCEEDED(hr))
   {
@@ -77,7 +77,7 @@ long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adapt
     ::SysFreeString(namespacePath);
   }
 
-  /* �Z�L�����e�B�ݒ� */
+  /* セキュリティ設定 */
   if(SUCCEEDED(hr))
   {
     hr = ::CoSetProxyBlanket(targetNamespace, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE,
@@ -85,7 +85,7 @@ long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adapt
                              nullptr, EOAC_NONE);
   }
 
-  /* �N���X�I�u�W�F�N�g */
+  /* クラスオブジェクト */
   IWbemClassObject *wmi_class = nullptr;
   BSTR wmi_class_name = ::SysAllocString(L"Win32_NetworkAdapterConfiguration");
   if(SUCCEEDED(hr))
@@ -93,7 +93,7 @@ long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adapt
     hr = targetNamespace->GetObjectW(wmi_class_name, 0, nullptr, &wmi_class, nullptr);
   }
 
-  /* ���\�b�h */
+  /* メソッド */
   IWbemClassObject *wmi_method = nullptr;
   BSTR method_name = ::SysAllocString(L"EnableStatic");
   if(SUCCEEDED(hr))
@@ -101,14 +101,14 @@ long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adapt
     hr = wmi_class->GetMethod(method_name, 0, &wmi_method, nullptr);
   }
 
-  /* �l�b�g���[�N�A�h���X�̃p�����[�^�[ */
+  /* ネットワークアドレスのパラメーター */
   IWbemClassObject *network_address_param = nullptr;
   if(SUCCEEDED(hr))
   {
     hr = wmi_method->SpawnInstance(0, &network_address_param);
   }
 
-  /* �p�����[�^�[��IP�A�h���X�ݒ� */
+  /* パラメーターにIPアドレス設定 */
   if(SUCCEEDED(hr))
   {
     VARIANT address_var;
@@ -116,13 +116,13 @@ long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adapt
     {
       SAFEARRAYBOUND sab[1] = {0};
       sab[0].cElements  = network_addres.size();
-      // IP�A�h���X
+      // IPアドレス
       address_var.vt          = VT_ARRAY | VT_BSTR;
       address_var.parray      = ::SafeArrayCreate(VT_BSTR, 1, sab);
-      // �T�u�l�b�g�}�X�N
+      // サブネットマスク
       subnet_mask_var.vt      = VT_ARRAY | VT_BSTR;
       subnet_mask_var.parray  = ::SafeArrayCreate(VT_BSTR, 1, sab);
-      // �z���ɐݒ�
+      // 配列に設定
       LONG index = 0;
       for(auto iter = std::begin(network_addres); iter != std::end(network_addres); ++iter)
       {
@@ -162,7 +162,7 @@ long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adapt
     ::VariantClear(&address_var);
   }
   
-  /* �l�b�g���[�N�A�_�v�^�[���T�� */
+  /* ネットワークアダプターを探す */
   IEnumWbemClassObject *adapter_enumerator = nullptr;
   if(SUCCEEDED(hr))
   {
@@ -170,11 +170,11 @@ long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adapt
                                              &adapter_enumerator);
   }
 
-  /* �l�b�g���[�N�A�_�v�^�[ �C���X�^���X�ւ̃p�X���擾 */
+  /* ネットワークアダプター インスタンスへのパスを取得 */
   BSTR network_adaptr_instance;
   if(SUCCEEDED(hr))
   {
-    // �Ώۂ̃l�b�g���[�N�A�_�v�^�[�̃C���X�^���X�擾
+    // 対象のネットワークアダプターのインスタンス取得
     IWbemClassObject *instance = nullptr;
     do
     {
@@ -193,7 +193,7 @@ long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adapt
           auto b_find = adaptor_name.find(target_network_adaptor);
           if(b_find != std::wstring::npos)
           {
-            break;  // do_while���ʂ���
+            break;  // do_whileをぬける
           }
 
         }
@@ -201,11 +201,11 @@ long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adapt
       }
       else
       {
-        break;  // do_while���ʂ���
+        break;  // do_whileをぬける
       }
     }
     while(hr != WBEM_S_FALSE);
-    // �C���X�^���X�ւ̃p�X�擾
+    // インスタンスへのパス取得
     if(SUCCEEDED(hr))
     {
       BSTR path_property = ::SysAllocString(L"__PATH");
@@ -223,7 +223,7 @@ long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adapt
     SAFE_RELEASE(instance);
   }
 
-  /* IP�A�h���X�̐ݒ� */
+  /* IPアドレスの設定 */
   IWbemClassObject *result_class = nullptr;
   if(SUCCEEDED(hr))
   {
