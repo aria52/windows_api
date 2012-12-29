@@ -28,29 +28,29 @@ private:
   std::wstring m_subnet_mask;
 };
 
-// target_network_adaptor‚Åw’è‚µ‚Ä‚¢‚éƒAƒ_ƒvƒ^[–¼‚Énetwork_address‚ğ’Ç‰Á‚·‚éB
+// target_network_adaptorï¿½Åwï¿½è‚µï¿½Ä‚ï¿½ï¿½ï¿½ï¿½Aï¿½_ï¿½vï¿½^ï¿½[ï¿½ï¿½ï¿½ï¿½network_addressï¿½ï¿½ï¿½Ç‰ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½B
 long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adaptor, const std::vector<NetworkAddress> &network_address);
 
 // application entry point.
 int main()
 {
-  // WMI‚ÌCOMƒNƒ‰ƒCƒAƒ“ƒg‚ÍMTA‚Å‚È‚¯‚ê‚Î‚È‚ç‚È‚¢B
+  // WMIï¿½ï¿½COMï¿½Nï¿½ï¿½ï¿½Cï¿½Aï¿½ï¿½ï¿½gï¿½ï¿½MTAï¿½Å‚È‚ï¿½ï¿½ï¿½ï¿½Î‚È‚ï¿½ï¿½È‚ï¿½ï¿½B
   HRESULT hr = ::CoInitializeEx(nullptr, COINIT_MULTITHREADED);
   if(SUCCEEDED(hr))
   {
-    // Š„‚è“–‚Ä‚éIP‚Ìİ’è
+    // ï¿½ï¿½ï¿½è“–ï¿½Ä‚ï¿½IPï¿½Ìİ’ï¿½
     std::vector<NetworkAddress> network_addres;
     {
       NetworkAddress  address1;
-      address1.SetAddress(L"172.30.1.100", L"255.255.0.0");
+      address1.SetAddress(L"192.168.0.100", L"255.255.0.0");
       network_addres.push_back(address1);
     }
     {
       NetworkAddress  address2;
-      address2.SetAddress(L"172.40.1.100", L"255.255.0.0");
+      address2.SetAddress(L"192.168.0.101", L"255.255.0.0");
       network_addres.push_back(address2);
     }
-    const std::wstring &target_adaptor = L"PCI";  // ƒlƒbƒgƒ[ƒNƒAƒ_ƒvƒ^[–¼‚ÉPCI‚ª‚Â‚­ƒAƒ_ƒvƒ^[‚ğ‘ÎÛiÅ‰‚ÉŒ©‚Â‚©‚Á‚½‚à‚Ì)
+    const std::wstring &target_adaptor = L"PCI";  // ï¿½lï¿½bï¿½gï¿½ï¿½ï¿½[ï¿½Nï¿½Aï¿½_ï¿½vï¿½^ï¿½[ï¿½ï¿½ï¿½ï¿½PCIï¿½ï¿½ï¿½Â‚ï¿½ï¿½Aï¿½_ï¿½vï¿½^ï¿½[ï¿½ï¿½ï¿½ÎÛiï¿½Åï¿½ï¿½ÉŒï¿½ï¿½Â‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
     const int result = FirstFindAdaptorAddStaticIPAddress(target_adaptor, network_addres);
     ::CoUninitialize();
     return result;
@@ -60,13 +60,13 @@ int main()
     return 1;
   }
 }
-// target_network_adaptor‚Åw’è‚µ‚Ä‚¢‚éƒAƒ_ƒvƒ^[–¼‚Énetwork_address‚ğ’Ç‰Á‚·‚éB
+// target_network_adaptorï¿½Åwï¿½è‚µï¿½Ä‚ï¿½ï¿½ï¿½ï¿½Aï¿½_ï¿½vï¿½^ï¿½[ï¿½ï¿½ï¿½ï¿½network_addressï¿½ï¿½ï¿½Ç‰ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½B
 long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adaptor, const std::vector<NetworkAddress> &network_addres)
 {
   IWbemLocator *locator = nullptr;
   HRESULT hr = ::CoCreateInstance(CLSID_WbemLocator, nullptr, CLSCTX_INPROC_SERVER,
                                   IID_PPV_ARGS(&locator));
-  /* CIMV2–¼‘O‹óŠÔ */
+  /* CIMV2ï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½ */
   IWbemServices *targetNamespace = nullptr;
   if(SUCCEEDED(hr))
   {
@@ -77,7 +77,7 @@ long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adapt
     ::SysFreeString(namespacePath);
   }
 
-  /* ƒZƒLƒ…ƒŠƒeƒBİ’è */
+  /* ï¿½Zï¿½Lï¿½ï¿½ï¿½ï¿½ï¿½eï¿½Bï¿½İ’ï¿½ */
   if(SUCCEEDED(hr))
   {
     hr = ::CoSetProxyBlanket(targetNamespace, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE,
@@ -85,7 +85,7 @@ long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adapt
                              nullptr, EOAC_NONE);
   }
 
-  /* ƒNƒ‰ƒXƒIƒuƒWƒFƒNƒg */
+  /* ï¿½Nï¿½ï¿½ï¿½Xï¿½Iï¿½uï¿½Wï¿½Fï¿½Nï¿½g */
   IWbemClassObject *wmi_class = nullptr;
   BSTR wmi_class_name = ::SysAllocString(L"Win32_NetworkAdapterConfiguration");
   if(SUCCEEDED(hr))
@@ -93,7 +93,7 @@ long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adapt
     hr = targetNamespace->GetObjectW(wmi_class_name, 0, nullptr, &wmi_class, nullptr);
   }
 
-  /* ƒƒ\ƒbƒh */
+  /* ï¿½ï¿½ï¿½\ï¿½bï¿½h */
   IWbemClassObject *wmi_method = nullptr;
   BSTR method_name = ::SysAllocString(L"EnableStatic");
   if(SUCCEEDED(hr))
@@ -101,14 +101,14 @@ long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adapt
     hr = wmi_class->GetMethod(method_name, 0, &wmi_method, nullptr);
   }
 
-  /* ƒlƒbƒgƒ[ƒNƒAƒhƒŒƒX‚Ìƒpƒ‰ƒ[ƒ^[ */
+  /* ï¿½lï¿½bï¿½gï¿½ï¿½ï¿½[ï¿½Nï¿½Aï¿½hï¿½ï¿½ï¿½Xï¿½Ìƒpï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½^ï¿½[ */
   IWbemClassObject *network_address_param = nullptr;
   if(SUCCEEDED(hr))
   {
     hr = wmi_method->SpawnInstance(0, &network_address_param);
   }
 
-  /* ƒpƒ‰ƒ[ƒ^[‚ÉIPƒAƒhƒŒƒXİ’è */
+  /* ï¿½pï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½^ï¿½[ï¿½ï¿½IPï¿½Aï¿½hï¿½ï¿½ï¿½Xï¿½İ’ï¿½ */
   if(SUCCEEDED(hr))
   {
     VARIANT address_var;
@@ -116,13 +116,13 @@ long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adapt
     {
       SAFEARRAYBOUND sab[1] = {0};
       sab[0].cElements  = network_addres.size();
-      // IPƒAƒhƒŒƒX
+      // IPï¿½Aï¿½hï¿½ï¿½ï¿½X
       address_var.vt          = VT_ARRAY | VT_BSTR;
       address_var.parray      = ::SafeArrayCreate(VT_BSTR, 1, sab);
-      // ƒTƒuƒlƒbƒgƒ}ƒXƒN
+      // ï¿½Tï¿½uï¿½lï¿½bï¿½gï¿½}ï¿½Xï¿½N
       subnet_mask_var.vt      = VT_ARRAY | VT_BSTR;
       subnet_mask_var.parray  = ::SafeArrayCreate(VT_BSTR, 1, sab);
-      // ”z—ñ‚Éİ’è
+      // ï¿½zï¿½ï¿½ï¿½Éİ’ï¿½
       LONG index = 0;
       for(auto iter = std::begin(network_addres); iter != std::end(network_addres); ++iter)
       {
@@ -162,7 +162,7 @@ long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adapt
     ::VariantClear(&address_var);
   }
   
-  /* ƒlƒbƒgƒ[ƒNƒAƒ_ƒvƒ^[‚ğ’T‚· */
+  /* ï¿½lï¿½bï¿½gï¿½ï¿½ï¿½[ï¿½Nï¿½Aï¿½_ï¿½vï¿½^ï¿½[ï¿½ï¿½ï¿½Tï¿½ï¿½ */
   IEnumWbemClassObject *adapter_enumerator = nullptr;
   if(SUCCEEDED(hr))
   {
@@ -170,11 +170,11 @@ long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adapt
                                              &adapter_enumerator);
   }
 
-  /* ƒlƒbƒgƒ[ƒNƒAƒ_ƒvƒ^[ ƒCƒ“ƒXƒ^ƒ“ƒX‚Ö‚ÌƒpƒX‚ğæ“¾ */
+  /* ï¿½lï¿½bï¿½gï¿½ï¿½ï¿½[ï¿½Nï¿½Aï¿½_ï¿½vï¿½^ï¿½[ ï¿½Cï¿½ï¿½ï¿½Xï¿½^ï¿½ï¿½ï¿½Xï¿½Ö‚Ìƒpï¿½Xï¿½ï¿½ï¿½æ“¾ */
   BSTR network_adaptr_instance;
   if(SUCCEEDED(hr))
   {
-    // ‘ÎÛ‚Ìƒlƒbƒgƒ[ƒNƒAƒ_ƒvƒ^[‚ÌƒCƒ“ƒXƒ^ƒ“ƒXæ“¾
+    // ï¿½ÎÛ‚Ìƒlï¿½bï¿½gï¿½ï¿½ï¿½[ï¿½Nï¿½Aï¿½_ï¿½vï¿½^ï¿½[ï¿½ÌƒCï¿½ï¿½ï¿½Xï¿½^ï¿½ï¿½ï¿½Xï¿½æ“¾
     IWbemClassObject *instance = nullptr;
     do
     {
@@ -193,7 +193,7 @@ long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adapt
           auto b_find = adaptor_name.find(target_network_adaptor);
           if(b_find != std::wstring::npos)
           {
-            break;  // do_while‚ğ‚Ê‚¯‚é
+            break;  // do_whileï¿½ï¿½ï¿½Ê‚ï¿½ï¿½ï¿½
           }
 
         }
@@ -201,11 +201,11 @@ long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adapt
       }
       else
       {
-        break;  // do_while‚ğ‚Ê‚¯‚é
+        break;  // do_whileï¿½ï¿½ï¿½Ê‚ï¿½ï¿½ï¿½
       }
     }
     while(hr != WBEM_S_FALSE);
-    // ƒCƒ“ƒXƒ^ƒ“ƒX‚Ö‚ÌƒpƒXæ“¾
+    // ï¿½Cï¿½ï¿½ï¿½Xï¿½^ï¿½ï¿½ï¿½Xï¿½Ö‚Ìƒpï¿½Xï¿½æ“¾
     if(SUCCEEDED(hr))
     {
       BSTR path_property = ::SysAllocString(L"__PATH");
@@ -223,7 +223,7 @@ long FirstFindAdaptorAddStaticIPAddress(const std::wstring &target_network_adapt
     SAFE_RELEASE(instance);
   }
 
-  /* IPƒAƒhƒŒƒX‚Ìİ’è */
+  /* IPï¿½Aï¿½hï¿½ï¿½ï¿½Xï¿½Ìİ’ï¿½ */
   IWbemClassObject *result_class = nullptr;
   if(SUCCEEDED(hr))
   {
