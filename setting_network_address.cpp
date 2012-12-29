@@ -42,12 +42,12 @@ int main()
     std::vector<NetworkAddress> network_addres;
     {
       NetworkAddress  address1;
-      address1.SetAddress(L"172.30.1.100", L"255.255.0.0");
+      address1.SetAddress(L"192.168.0.100", L"255.255.0.0");
       network_addres.push_back(address1);
     }
     {
       NetworkAddress  address2;
-      address2.SetAddress(L"172.40.1.100", L"255.255.0.0");
+      address2.SetAddress(L"192.168.0.101", L"255.255.0.0");
       network_addres.push_back(address2);
     }
     const std::wstring &target_adaptor = L"PCI";  // ネットワークアダプター名にPCIがつくアダプターを対象（最初に見つかったもの)
